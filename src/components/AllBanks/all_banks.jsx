@@ -1,6 +1,6 @@
 import axios from "axios";
 import { toast } from "materialize-css";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { connect, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import constants from "../../constant";
@@ -22,50 +22,8 @@ function AllBanks({setBanksStore, setBanksCity, setLoader, setFavourite}) {
 	function useSelectedCity(value){
 		set_city(value);
 	}
-
-	function changefavourites(bank){
-		let [favourites, flag] = constants.favouriteFunction(bank)
-		setFavourite(favourites);
-		toast({html:flag});
-	}
-
-	useEffect(() => {
-		change(1);
-	}, [filtered_banks]);
 	
-
-	useEffect(async () => {
-		const abort = new AbortController();
-		setLoader(true)
-		
-		localStorage.setItem('city', selectedCity);
-		sessionStorage.setItem('city', selectedCity);
-		setBanksCity(selectedCity)
-
-		try {
-			const res = await axios.get(`${constants.URL}?city=${selectedCity.toUpperCase()}`)
-			set_banks(res.data)
-			setBanksStore(res.data)
-			set_filtered_banks(res.data)
-		} catch (error) {
-			console.log(error);
-			toast({html:""+error})
-		}
-		setLoader(false)
-		return () => {
-			abort.abort();
-		};
-	}, [selectedCity]);
-	
-	const TableCell = ({children, bankId, style})=>(
-		<td>
-			<Link to={"/bank-details/"+bankId} style={style}>
-				{children}
-			</Link>
-		</td>
-	)
-
-	const change = (id)=>{
+	const change = useCallback((id)=>{
 		if(id < 1){
 			id = 1;
 		}
@@ -77,7 +35,55 @@ function AllBanks({setBanksStore, setBanksCity, setLoader, setFavourite}) {
 		if(document.querySelector('.' + styles["table-wrapper"]))
 			document.querySelector('.' + styles["table-wrapper"]).scrollTop = 0;
 
+	}, [filtered_banks, maxlength]) 
+
+
+	function changefavourites(bank){
+		let [favourites, flag] = constants.favouriteFunction(bank)
+		setFavourite(favourites);
+		toast({html:flag});
 	}
+
+	useEffect(() => {
+		change(1);
+	}, [filtered_banks, change]);
+	
+
+	useEffect(() => {
+			
+		const abort = new AbortController();
+
+		async function fetchData() {
+			setLoader(true)
+			
+			localStorage.setItem('city', selectedCity);
+			sessionStorage.setItem('city', selectedCity);
+			setBanksCity(selectedCity)
+
+			try {
+				const res = await axios.get(`${constants.URL}?city=${selectedCity.toUpperCase()}`)
+				set_banks(res.data)
+				setBanksStore(res.data)
+				set_filtered_banks(res.data)
+			} catch (error) {
+				console.log(error);
+				toast({html:""+error})
+			}
+			setLoader(false)
+		}
+		fetchData()
+		return () => {
+			abort.abort();
+		};
+	}, [selectedCity,  setBanksCity, setBanksStore, setLoader]);
+	
+	const TableCell = ({children, bankId, style})=>(
+		<td>
+			<Link to={"/bank-details/"+bankId} style={style}>
+				{children}
+			</Link>
+		</td>
+	)
 
 	if(banks.length === 0){
 		return <h1 className="center">No bank found at this location</h1>

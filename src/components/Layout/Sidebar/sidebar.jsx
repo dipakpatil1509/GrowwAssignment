@@ -61,7 +61,7 @@ function Sidebar({className, setFavourite}) {
                             <Link to={item.url} onClick={(e)=>{closeSidebar()}}>
                                 <i className={item.icon}></i> {item.title} 
                                 {
-                                    id == 1 && 
+                                    id === 1 && 
                                     <span className="right">{favourites ? favourites.length : 0}</span>
                                 }
                             </Link>

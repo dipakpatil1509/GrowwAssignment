@@ -24,22 +24,25 @@ function BankDetails({setLoader, setBanksStore, setFavourite}) {
 		toast({html:flag});
 	}
 
-    useEffect(async () => {
-        setLoader(true);
-        if(!local_city){
-            set_local_city(localStorage.getItem('city'))
+    useEffect(() => {
+        async function fetchData() {
+            setLoader(true)
+            if(!local_city){
+                set_local_city(localStorage.getItem('city'))
+            }
+            let b = [...banks]
+            if((!banks || banks.length === 0) && local_city !== null){
+                console.log(local_city);
+                const res = await axios.get(`${constants.URL}?city=${local_city.toUpperCase()}`)
+                b = res.data;
+                setBanksStore(b)
+            }
+            let currentBank = b.find(a=>a.ifsc===ifsc_code);
+            set_details(currentBank);
+            setLoader(false)
         }
-        let b = [...banks]
-        if((!banks || banks.length === 0) && local_city !== null){
-            console.log(local_city);
-			const res = await axios.get(`${constants.URL}?city=${local_city.toUpperCase()}`)
-			b = res.data;
-            setBanksStore(b)
-        }
-        let currentBank = b.find(a=>a.ifsc===ifsc_code);
-        set_details(currentBank);
-        setLoader(false)
-    }, [local_city]);
+        fetchData();
+    }, [local_city, banks, ifsc_code, setBanksStore, setLoader]);
 
     useEffect(() => {
 		const abort = new AbortController();
@@ -58,7 +61,7 @@ function BankDetails({setLoader, setBanksStore, setFavourite}) {
 		return () => {
 			abort.abort();
 		};
-    }, []);
+    });
     
     
 	if(banks.length === 0 || !details){
