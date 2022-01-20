@@ -1,6 +1,6 @@
 
-#`npm start` For Express Server on port 5000 after `npm run build`
-#`npm run dev` for react local server on port 3000
+# `npm start` For Express Server on port 5000 after `npm run build`
+# `npm run dev` for react local server on port 3000
 
 # Getting Started with Create React App
 
