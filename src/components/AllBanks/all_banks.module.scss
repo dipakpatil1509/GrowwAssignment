@@ -1,0 +1,81 @@
+.all_banks{
+    padding:0 15px 25px;
+    table{
+        box-sizing: border-box;
+        height: 100%;
+        thead{
+            background: var(--theme);
+            color: #fff;
+            th{
+                border-radius: 0;
+            }
+        }
+        tbody{
+            tr{
+                cursor: pointer;
+                td{
+                    padding: 0;
+                    a{
+                        padding: 15px 5px;
+                        width: 100%;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        position: relative;
+                        justify-content: center;
+                        box-sizing: border-box;
+                        i{
+                            font-size: 1.5rem;
+                            color: grey;
+                            &.active, &:hover{
+                                color: var(--active-color);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.filters{
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 15px;
+    margin: 15px 0;
+    input, select{
+        border-radius: 10px;
+        border: 1px solid var(--theme);
+        padding: 16px 15px;
+        height: auto !important;
+        width:100%;
+        margin: 0 !important;
+        font-size: 1.1rem;
+        line-height: normal !important;
+        font-weight: 600;
+        box-sizing: border-box;
+        box-shadow: 0 3px 5px 0 rgba(0,0,0,0.29);
+        -webkit-box-shadow: 0 3px 5px 0 rgba(0,0,0,0.29);
+        -moz-box-shadow: 0 3px 5px 0 rgba(0,0,0,0.29);
+        &::placeholder{
+            color: rgba($color: #000000, $alpha: 0.5);
+        }
+
+        &:focus, &:active{
+            border-color: var(--active-color);
+        }
+    }
+    select{
+        padding: 15px 15px;
+    }
+    select:invalid{
+        color: rgba($color: #000000, $alpha: 0.5);
+    }
+    
+    select option { 
+        color: #000; 
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+}

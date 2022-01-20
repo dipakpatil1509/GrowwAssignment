@@ -1,0 +1,14 @@
+.bank_details{
+    padding:0 15px 25px;
+    table{
+        margin-bottom: 25px;
+        color: var(--theme);
+        font-size: 1.2rem;
+        tr{
+            td:first-of-type{
+                min-width: 250px;
+                font-weight: 600;
+            }
+        }
+    }
+}
