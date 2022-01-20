@@ -1,11 +1,20 @@
 .all_banks{
     padding:0 15px 25px;
+    .table-wrapper{
+        position: relative;
+        overflow-y: auto;
+        max-height: calc(100vh - 300PX);
+    }
     table{
         box-sizing: border-box;
         height: 100%;
         thead{
-            background: var(--theme);
+            background: #0d2247;
             color: #fff;
+            position: sticky;
+            top: 0;
+            left: 0;
+            z-index: 1234;
             th{
                 border-radius: 0;
             }
@@ -33,6 +42,62 @@
                         }
                     }
                 }
+            }
+        }
+    }
+    .bottom{
+        position: sticky;
+        bottom: 0;
+        left:0;
+        right: 0;
+        background: #fff;
+        display: block;
+        text-align: center;
+        width: 100%;
+        padding: 10px ;
+
+        div.page_no{
+            text-align: left;
+            display: inline-block;
+            vertical-align: middle;
+            margin: 0 auto;
+            a{
+                display: inline;
+                vertical-align: middle;
+                margin: 0;
+                padding: 0;
+                color: var(--theme);
+                font-size: 1.5rem;
+                &.disabled{
+                    opacity: 0.5;    
+                    pointer-events: none;
+                    cursor:not-allowed;
+                }
+            }
+            p{
+                display: inline;
+                vertical-align: middle;
+                font-size: 1rem;
+                margin: 0 10px 0 7px;
+                .active{
+                    background: var(--theme);
+                    padding:0 7px;
+                    color: #fff;
+                    border-radius: 5px;
+                }
+            }
+        }
+        select{
+            float: right;
+            height: 100%;
+            max-width: max-content;
+            margin-left: auto;
+            margin-right: 0;
+            text-align: center;
+            border-radius: 10px;
+            &:focus{
+                outline: none;
+                border-color: var(--theme);
             }
         }
     }
@@ -78,4 +143,28 @@
         font-weight: 600;
     }
 
+}
+
+@media screen and (max-width:1120px) {
+    .all_banks{
+        .table-wrapper{
+           max-height: calc(100vh - 350PX);
+        }
+    }
+}
+
+@media screen and (max-width:992px) {
+    .all_banks{
+        .table-wrapper{
+           max-height: calc(100vh - 400PX);
+        }
+    }
+}
+
+@media screen and (max-width:600px) {
+    .all_banks{
+        .table-wrapper{
+           max-height: calc(100vh - 450PX);
+        }
+    }
 }

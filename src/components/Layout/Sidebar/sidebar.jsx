@@ -1,9 +1,17 @@
 import React from 'react';
+import { connect, useSelector } from 'react-redux';
 import { Link, matchPath, useLocation } from 'react-router-dom';
 import styles from './sidebar.module.scss';
 
-function Sidebar({className}) {
+function Sidebar({className, setFavourite}) {
     const location = useLocation()
+
+    const favourites = useSelector(state=>state.favourites.favourites)
+
+    if(!favourites){
+        var fav = localStorage.getItem('favourites') ? JSON.parse(localStorage.getItem('favourites')) : []
+		setFavourite(fav);
+    }
 
     function checkRoute(path){
         let clas = ""
@@ -51,7 +59,11 @@ function Sidebar({className}) {
                     menu.map((item, id)=>(
                         <li key={id} className={styles["items"] + checkRoute([item.url, ...item.activeOn])}>
                             <Link to={item.url} onClick={(e)=>{closeSidebar()}}>
-                                <i className={item.icon}></i> {item.title}
+                                <i className={item.icon}></i> {item.title} 
+                                {
+                                    id == 1 && 
+                                    <span className="right">{favourites ? favourites.length : 0}</span>
+                                }
                             </Link>
                         </li>
                     ))
@@ -61,4 +73,12 @@ function Sidebar({className}) {
     );
 }
 
-export default Sidebar;
+const mapDis = (dispatch)=>{
+	return{
+		setFavourite:(favourites)=>{
+			dispatch({type:'Set_Favourites', favourites})
+		}
+	}
+}
+
+export default connect(null, mapDis)(Sidebar);

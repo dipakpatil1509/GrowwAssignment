@@ -1,19 +1,28 @@
 import axios from 'axios';
+import { toast } from 'materialize-css';
 import React, { useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import constants from '../../constant';
 import styles from './bank_details.module.scss'
 
-function BankDetails({setLoader, setBanksStore}) {
+function BankDetails({setLoader, setBanksStore, setFavourite}) {
     const params = useParams();
     const ifsc_code = params.ifsc_code;
 
 	const [details, set_details] = useState(null);
     
+    const favourites = useSelector(state=>state.favourites.favourites)
+
     const banks = useSelector(state=>state.banks.banks)
 	const [local_city, set_local_city] = useState(localStorage.getItem('city'));
 
+
+	function changefavourites(bank){
+		let [favourites, flag] = constants.favouriteFunction(bank)
+		setFavourite(favourites);
+		toast({html:flag});
+	}
 
     useEffect(async () => {
         setLoader(true);
@@ -96,8 +105,14 @@ function BankDetails({setLoader, setBanksStore}) {
                     </tr>
                 </tbody>
             </table>
-            <button className="btn">
-                Add to Favourite
+            <button className="btn" onClick={(e)=>{changefavourites(details)}}>
+                
+                {/*  */}
+                {
+                    favourites.some(a=>a.ifsc===details.ifsc) ?
+                    "Remove from Favourite":
+                    "Add to Favourite"
+                }
             </button>
         </div>
     );
@@ -108,6 +123,9 @@ const mapDis = (dispatch)=>{
 	return{
 		setBanksStore:(banks)=>{
 			dispatch({type:'SET_BANKS', banks})
+		},
+		setFavourite:(favourites)=>{
+			dispatch({type:'Set_Favourites', favourites})
 		},
 		setLoader:(loader)=>{
 			dispatch({type:'Set_Loader', loader})

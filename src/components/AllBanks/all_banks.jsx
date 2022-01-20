@@ -1,23 +1,38 @@
 import axios from "axios";
 import { toast } from "materialize-css";
 import React, { useEffect, useState } from "react";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import constants from "../../constant";
 import styles from "./all_banks.module.scss";
 import Filters from "./filters";
 
-function AllBanks({setBanksStore, setBanksCity, setLoader}) {
+function AllBanks({setBanksStore, setBanksCity, setLoader, setFavourite}) {
 
 	const cities_i_love = ["Dhule", "Pune", "Mumbai", "Nashik", "Ahemdabad"];
 
 	const [banks, set_banks] = useState([])
 	const [filtered_banks, set_filtered_banks] = useState([])
 	const [selectedCity, set_city] = useState(sessionStorage.getItem('city') || cities_i_love[0])
-	
+	const [maxlength, set_maxlength] = useState(10);
+	const [selectedpage, setselectedpage] = useState(1);
+
+    const favourites = useSelector(state=>state.favourites.favourites)
+
 	function useSelectedCity(value){
 		set_city(value);
 	}
+
+	function changefavourites(bank){
+		let [favourites, flag] = constants.favouriteFunction(bank)
+		setFavourite(favourites);
+		toast({html:flag});
+	}
+
+	useEffect(() => {
+		change(1);
+	}, [filtered_banks]);
+	
 
 	useEffect(async () => {
 		const abort = new AbortController();
@@ -50,6 +65,20 @@ function AllBanks({setBanksStore, setBanksCity, setLoader}) {
 		</td>
 	)
 
+	const change = (id)=>{
+		if(id < 1){
+			id = 1;
+		}
+		var length = Math.ceil(filtered_banks.length/parseInt(maxlength))
+		if(id > length){
+			id = length
+		}
+		setselectedpage(id);
+		if(document.querySelector('.' + styles["table-wrapper"]))
+			document.querySelector('.' + styles["table-wrapper"]).scrollTop = 0;
+
+	}
+
 	if(banks.length === 0){
 		return <h1 className="center">No bank found at this location</h1>
 	}
@@ -58,49 +87,81 @@ function AllBanks({setBanksStore, setBanksCity, setLoader}) {
 		<div className={styles["all_banks"]}>
 			<h1>All Banks</h1>
 			<Filters filter_bank={set_filtered_banks} cities={cities_i_love} selectedCity={selectedCity} set_city={useSelectedCity} />
-			<table className="striped highlight centered responsive-table">
-				<thead>
-					<tr>
-						<th>Sr. No.</th>
-						<th>Bank</th>
-						<th>IFSC</th>
-						<th>Branch</th>
-						<th>Bank ID</th>
-						<th>Address</th>
-						<th>Favourite</th>
-					</tr>
-				</thead>
-				<tbody>
-					{
-						filtered_banks.length === 0 &&
+			<div className={styles["table-wrapper"]}>
+				<table className="striped highlight centered responsive-table banksTable">
+					<thead>
 						<tr>
-							<td colSpan={6}>
-								<h5>No Records Found!</h5>
-							</td>
+							<th>Sr. No.</th>
+							<th>Bank</th>
+							<th>IFSC</th>
+							<th>Branch</th>
+							<th>Bank ID</th>
+							<th>Address</th>
+							<th>Favourite</th>
 						</tr>
-					}
-					{
-						filtered_banks.map((bank, i)=>{
-							let id = bank.ifsc
-							return(
-								<tr key={i}>
-									<TableCell bankId={id}>{i+1}.</TableCell>
-									<TableCell bankId={id}>{bank.bank_name}</TableCell>
-									<TableCell bankId={id}>{bank.ifsc}</TableCell>
-									<TableCell bankId={id}>{bank.branch}</TableCell>
-									<TableCell bankId={id}>{bank.bank_id}</TableCell>
-									<TableCell bankId={id} style={{"maxWidth":"500px"}}>{bank.address}</TableCell>
-									<td>
-										<a href="#!" onClick={(e)=>{e.preventDefault()}}>
-											<i className="fas fa-heart"></i>
-										</a>
-									</td>
-								</tr>
-							)
-						})
-					}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{
+							filtered_banks.length === 0 &&
+							<tr>
+								<td colSpan={6}>
+									<h5>No Records Found!</h5>
+								</td>
+							</tr>
+						}
+						{
+							filtered_banks.slice(maxlength * (selectedpage - 1), selectedpage * maxlength).map((bank, i)=>{
+								let id = bank.ifsc
+								return(
+									<tr key={i}>
+										<TableCell bankId={id}>{maxlength * (selectedpage - 1) + i + 1}.</TableCell>
+										<TableCell bankId={id}>{bank.bank_name}</TableCell>
+										<TableCell bankId={id}>{bank.ifsc}</TableCell>
+										<TableCell bankId={id}>{bank.branch}</TableCell>
+										<TableCell bankId={id}>{bank.bank_id}</TableCell>
+										<TableCell bankId={id} style={{"maxWidth":"500px"}}>{bank.address}</TableCell>
+										<td>
+											<a href="#!" 
+												onClick={(e)=>{e.preventDefault(); changefavourites(bank)}}
+											>
+												<i className={"fas fa-heart " + (favourites.some(a=>a.ifsc===bank.ifsc) ? styles["active"] : "")}></i>
+											</a>
+										</td>
+									</tr>
+								)
+							})
+						}
+					</tbody>
+				</table>
+			</div>
+			
+			{
+				filtered_banks.length > 0 &&
+				<div className={styles["bottom"]}>
+					<div className={styles["page_no"]}>
+						<a href="#!" 
+							className={selectedpage === 1 ? styles["disabled"] : ""}
+							onClick={(e)=>{e.preventDefault(); change(selectedpage - 1)}}
+						><i className="fas fa-chevron-left"></i></a>
+						<p>
+							Page &nbsp;
+							<span className={styles["active"]}>{ selectedpage }</span>  &nbsp;
+							of  &nbsp;
+							<span className={styles["active"]}>{ Math.ceil(filtered_banks.length/parseInt(maxlength)) }</span>
+						</p>
+						<a href="#!"
+							className={selectedpage === Math.ceil(filtered_banks.length/parseInt(maxlength)) ? styles["disabled"] : ""} 
+							onClick={(e)=>{e.preventDefault(); change(selectedpage + 1)}}
+						><i className="fas fa-chevron-right"></i></a>
+					</div>
+					<select className="browser-default" name="maxlength" id="maxlength" onChange={(e)=>{set_maxlength(parseInt(e.target.value))}} defaultValue="10">
+						<option value="10">10</option>
+						<option value="25">25</option>
+						<option value="50">50</option>
+						<option value="100">100</option>
+					</select>
+				</div>
+			}
 		</div>
 	);
 }
@@ -112,6 +173,9 @@ const mapDis = (dispatch)=>{
 		},
 		setBanksCity:(city)=>{
 			dispatch({type:'SET_CITY', city})
+		},
+		setFavourite:(favourites)=>{
+			dispatch({type:'Set_Favourites', favourites})
 		},
 		setLoader:(loader)=>{
 			dispatch({type:'Set_Loader', loader})
