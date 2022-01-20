@@ -31,6 +31,7 @@ table.highlight>tbody>tr:hover {
 
 .sidenav{
     display: flex;
+    padding-bottom: 0;
 }
 
 .sidenav div:first-of-type{
@@ -42,4 +43,12 @@ table.highlight>tbody>tr:hover {
 
 .sidenav li>a i {
     color: inherit;
+}
+
+
+@media only screen and (max-width: 992px){
+        
+    table.responsive-table tbody tr td a{
+        justify-content: flex-start !important;
+    }
 }
