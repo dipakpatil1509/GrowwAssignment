@@ -15,8 +15,22 @@ self.addEventListener('install', function (event) {
         })
     )
 })
-self.addEventListener('activate', evt => {
+self.addEventListener('activate', event => {
     console.log('Service Worker Activated');
+    event.waitUntil(
+        caches.open(dynamicCacheName).then(cache => {
+            cache.keys().then(function(cacheNames) {
+                return Promise.all(
+                    cacheNames.map(function(cacheName) {
+                        console.log(cacheName);
+                        if (cacheName) {
+                            return caches.delete(cacheName);
+                        }
+                    })
+                );
+            });
+        })
+    )
 })
 
 const limitCacheSize = (name, size) => {
@@ -32,13 +46,16 @@ const limitCacheSize = (name, size) => {
 
 self.addEventListener('fetch', function (evt) {
     if (navigator.onLine) {
-        fetch(evt.request).then(fetchRes => {
-            return caches.open(dynamicCacheName).then(cache => {
-                cache.put(evt.request.url, fetchRes.clone());
-                limitCacheSize(dynamicCacheName, 500);
-                return fetchRes;
+        evt.respondWith(
+            caches.match(evt.request).then((resp) => {
+                return resp || fetch(evt.request).then(fetchRes => {
+                    return caches.open(dynamicCacheName).then(cache => {
+                        cache.put(evt.request.url, fetchRes.clone());
+                        limitCacheSize(dynamicCacheName, 100);
+                        return fetchRes;
+                    })
+                });
             })
-
-        }).catch(() => { })
+        );
     }
 })
