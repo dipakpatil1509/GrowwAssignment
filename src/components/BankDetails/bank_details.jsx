@@ -53,6 +53,7 @@ function BankDetails({setLoader, setBanksStore, setFavourite}) {
                 if ( e.storageArea === localStorage && e.key === "city" && e.newValue !== local_city ) {
                     const res = await axios.get(`${constants.URL}?city=${e.newValue.toUpperCase()}`)
 			        setBanksStore(res.data)
+                    set_local_city(e.newValue)
                 } 
                 setLoader(false)
             };
